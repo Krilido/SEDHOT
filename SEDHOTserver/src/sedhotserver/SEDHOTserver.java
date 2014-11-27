@@ -23,15 +23,21 @@ public class SEDHOTserver {
      */
     public static void main(String[] args) {
         try {
+            
             ArrayList <ThreadData> daftar;
             daftar = new ArrayList<>();
-            ServerSocket cmdss = new ServerSocket(9191);
+            ServerSocket cmdss;
+            cmdss = new ServerSocket(9191);
             ServerSocket filess = new ServerSocket(9090);
-            Socket client = cmdss.accept();
-            System.out.println("Koneksi berhasil dari :" + client.getInetAddress());
-            Thread baru = new Thread(new ThreadData (client));
-            baru.start();
             
+            while (true){
+            Socket cmdclient = cmdss.accept();
+            //Socket fileclient = null;
+            Socket fileclient = filess.accept();
+            System.out.println("Koneksi berhasil dari :" + cmdclient.getInetAddress());
+            Thread baru = new Thread(new ThreadData (cmdclient, fileclient));
+            baru.start();
+            }
         } catch (IOException ex) {
             Logger.getLogger(SEDHOTserver.class.getName()).log(Level.SEVERE, null, ex);
         }
