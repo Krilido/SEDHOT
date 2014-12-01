@@ -6,11 +6,18 @@
 package sedhotserver;
 
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -47,9 +54,8 @@ public class ThreadData implements Runnable {
             File folder = new File(filepath);
             File[] listOfFiles = folder.listFiles();
             ArrayList<String> fileforyou = new ArrayList<>();
-
                     
-            String req, filereq;
+            String req;
             String[] cmd;
             int stat=0;
             cmd = new String[3];
@@ -75,17 +81,36 @@ public class ThreadData implements Runnable {
             
             
             else if ("SEN".equals(cmd[0]) && stat==1){
+                int bytesRead;
                 String filename = null;
                 for (String retval: cmd[1].split("/")){
                     filename=retval;
                 }
-                PrintWriter filewriter = new PrintWriter(filepath+cmd[2]+"_"+username+"_"+filename, "UTF-8");
+                
+                InputStream in = fileclient.getInputStream();
+                DataInputStream clientData;
+                clientData = new DataInputStream(in);            
+                //namaFile = clientData.readUTF();
+                String namaFile = filepath+cmd[2]+"_"+username+"_"+filename;
+                OutputStream output;
+                output = new FileOutputStream(namaFile);
                 cmdout.println("200 READY TO RECIVE FILE\r\n\r\n");
-                while((filereq = filein.readLine()) != null){
-                    filewriter.println(filereq);
+                long size = clientData.readLong();
+                byte[] buffer = new byte[1024];
+                while (size > 0 && (bytesRead = clientData.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
+                    output.write(buffer, 0, bytesRead);
+                    size -= bytesRead;
                 }
-                filewriter.close();
                 cmdout.println("200 FILE TRANSFER SUCCESS\r\n\r\n");
+                output.close();
+                
+//                PrintWriter filewriter = new PrintWriter(filepath+cmd[2]+"_"+username+"_"+filename, "UTF-8");
+//                cmdout.println("200 READY TO RECIVE FILE\r\n\r\n");
+//                while((filereq = filein.readLine()) != null){
+//                    filewriter.println(filereq);
+//                }
+//                filewriter.close();
+//                cmdout.println("200 FILE TRANSFER SUCCESS\r\n\r\n");
             }
             
             else if ("CEK".equals(cmd[0]) && stat==1){
@@ -103,6 +128,29 @@ public class ThreadData implements Runnable {
                 }
             }
             
+            else if ("GET".equals(cmd[0]) && stat==1){
+                int idfile = Integer.parseInt(cmd[1]);
+                File fileBaru = new File(fileforyou.get(idfile));
+                byte[] bytearray = new byte[(int) fileBaru.length()];
+
+                FileInputStream fis;
+                fis = new FileInputStream(fileBaru);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                //bis.read(mybytearray, 0, mybytearray.length);
+
+                DataInputStream dis = new DataInputStream(bis);
+                dis.readFully(bytearray, 0, bytearray.length);
+
+                OutputStream out;
+                out = fileclient.getOutputStream();
+
+                //Sending file name and file size to the server
+                DataOutputStream dos = new DataOutputStream(out);
+                dos.writeUTF(fileBaru.getName());
+                dos.writeLong(bytearray.length);
+                dos.write(bytearray, 0, bytearray.length);
+                dos.flush();
+            }
             
             else{
                 cmdout.println("400 BAD REQUEST\r\n\r\n");
