@@ -90,7 +90,7 @@ public class ThreadData implements Runnable {
                 DataInputStream clientData;
                 clientData = new DataInputStream(in);            
                 //namaFile = clientData.readUTF();
-                String namaFile = filepath+cmd[2]+"_"+username+"_"+filename;
+                String namaFile = filepath+username+"_"+cmd[2]+"_"+filename;
                 OutputStream output;
                 output = new FileOutputStream(namaFile);
                 cmdout.println("200 READY TO RECIVE FILE\r\n\r\n");
@@ -122,7 +122,7 @@ public class ThreadData implements Runnable {
                         z++;
                     }
 //                    System.out.println(name[0]);
-                    if (name[0].equals(username)) {
+                    if (name[0].equals(username) || name[0].equals("ALL")) {
                         fileforyou.add(listOfFiles[j].getName());
                         cmdout.println((j+1)+" "+name[2]+" "+name[1]+"\r\n");
                     }
