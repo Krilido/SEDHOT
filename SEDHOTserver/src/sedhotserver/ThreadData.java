@@ -130,7 +130,7 @@ public class ThreadData implements Runnable {
             }
             
             else if ("GET".equals(cmd[0]) && stat==1){
-                int idfile = Integer.parseInt(cmd[1]);
+                int idfile = Integer.parseInt(cmd[1])-1;
                 File fileBaru = new File(filepath+fileforyou.get(idfile));
                 byte[] bytearray = new byte[(int) fileBaru.length()];
 
