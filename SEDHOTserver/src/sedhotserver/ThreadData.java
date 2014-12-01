@@ -54,20 +54,18 @@ public class ThreadData implements Runnable {
             File folder = new File(filepath);
             File[] listOfFiles = folder.listFiles();
             ArrayList<String> fileforyou = new ArrayList<>();
-                    
+            
             String req;
             String[] cmd;
             int stat=0;
             cmd = new String[3];
             cmdout.println("200 HI! Welcome to SEDHOT Server :D\r\n\r\n");
             while((req = cmdin.readLine()) != null){
-                System.out.println(req);
                 int i =0;
                 for (String retval: req.split(" ")){
                 cmd[i]=retval;
                 i++;
             }
-            System.out.println(cmd[1]);
             if ("USR".equals(cmd[0])){
                 if( ("fakhri".equals(cmd[1])) || ("azis".equals(cmd[1])) || ("raga".equals(cmd[1])) ){
                     stat=1;
@@ -77,9 +75,10 @@ public class ThreadData implements Runnable {
                 else{
                     cmdout.println("500 NO USER\r\n\r\n");
                 }
+       //     }
+            
+            
             }
-            
-            
             else if ("SEN".equals(cmd[0]) && stat==1){
                 int bytesRead;
                 String filename = null;
@@ -115,22 +114,24 @@ public class ThreadData implements Runnable {
             
             else if ("CEK".equals(cmd[0]) && stat==1){
                 cmdout.println("200 FILE TO YOU:\r\n");
-                for (i = 0; i < listOfFiles.length; i++) {
+                for (int j = 0; j < listOfFiles.length; j++) {
                     String[] name = new String[4];
-                    i=0;
-                    for (String retval: listOfFiles[i].getName().split("_")){
-                        name[i]=retval;
+                    int z=0;
+                    for (String retval: listOfFiles[j].getName().split("_")){
+                        name[z]=retval;
+                        z++;
                     }
+//                    System.out.println(name[0]);
                     if (name[0].equals(username)) {
-                        fileforyou.add(listOfFiles[i].getName());
-                        cmdout.println((i+1)+" "+cmd[2]+" "+cmd[1]+"\r\n");
+                        fileforyou.add(listOfFiles[j].getName());
+                        cmdout.println((j+1)+" "+name[2]+" "+name[1]+"\r\n");
                     }
                 }
             }
             
             else if ("GET".equals(cmd[0]) && stat==1){
                 int idfile = Integer.parseInt(cmd[1]);
-                File fileBaru = new File(fileforyou.get(idfile));
+                File fileBaru = new File(filepath+fileforyou.get(idfile));
                 byte[] bytearray = new byte[(int) fileBaru.length()];
 
                 FileInputStream fis;
