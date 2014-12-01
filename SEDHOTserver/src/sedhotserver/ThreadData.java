@@ -145,7 +145,6 @@ public class ThreadData implements Runnable {
                 OutputStream out;
                 out = fileclient.getOutputStream();
 
-                //Sending file name and file size to the server
                 DataOutputStream dos = new DataOutputStream(out);
                 dos.writeUTF(fileBaru.getName());
                 dos.writeLong(bytearray.length);
